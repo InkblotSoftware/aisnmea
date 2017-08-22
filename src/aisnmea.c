@@ -172,46 +172,6 @@ s_ais_msgtype_fromchar (int ch)
 }
 
 
-//  ----------------------------------------------------------------------
-//  Splitting strings that are pairs with a single char delim between,
-//  e.g. aaa:bbb.
-//  Note that we require non-zero lengths in both substrings.
-//  Returns a null-like struct on failure.
-
-// Struct considered null iff str1 is NULL
-typedef struct _stringspair_s {
-    char *str1;
-    char *str2;
-} stringspair_s;
-
-// Caller owns strings contained in return value
-static stringspair_s
-s_parse_stringpair (const char *string, char delim)
-{
-    assert (string);
-    assert (delim);  // Not helpful to have this be NULL
-
-    stringspair_s res = {0};  // Default to null state
-
-    zlist_t *cols = s_delimstring_split (string, delim);
-    if (zlist_size (cols) != 2)
-        goto cleanup_ret;
-
-    const char *key = (const char *) zlist_first (cols);
-    const char *val = (const char *) zlist_next (cols);
-
-    if (strlen (key) == 0 || strlen (val) == 0)
-        goto cleanup_ret;
-
-    res.str1 = strdup (key);
-    res.str2 = strdup (val);
-
- cleanup_ret:
-    zlist_destroy (&cols);
-    return res;
-}
-
-
 //  --------------------------------------------------------------------------
 //  Parsing an NMEA tagblock string e.g. "a:bb,ccc:d*" to a zhash.
 //  Returns NULL if parse fails.
@@ -570,30 +530,6 @@ aisnmea_test (bool verbose)
     if (verbose)
         log ("### DID MSGTYPE MAPPING TESTS");
     
-
-    // -- parsing key:val pairs
-
-    // eg1
-
-    stringspair_s kv1 = s_parse_stringpair ("k:v", ':');
-    assert (streq (kv1.str1, "k"));
-    assert (streq (kv1.str2, "v"));
-    zstr_free (&kv1.str1); zstr_free (&kv1.str2);
-
-    // eg2
-
-    stringspair_s kv2 = s_parse_stringpair (":vvv", ':');
-    assert (!kv2.str1);
-    assert (!kv2.str2);
-
-    stringspair_s kv3 = s_parse_stringpair ("aaaaaaaaaaaa:bbbbbbbbbbbbb", ':');
-    assert (streq (kv3.str1, "aaaaaaaaaaaa"));
-    assert (streq (kv3.str2, "bbbbbbbbbbbbb"));
-    zstr_free (&kv3.str1); zstr_free (&kv3.str2);
-
-    if (verbose)
-        log ("### DID STRINGPARSE TESTS");
-
     
     // -- parsing whole tagblocks
     
