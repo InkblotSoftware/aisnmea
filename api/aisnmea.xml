@@ -1,0 +1,98 @@
+<class name = "aisnmea">
+
+  <!-- Ctr/dtr and parsing method -->
+
+  <constructor>
+    Parse an NMEA string and return the results, or NULL if the parse failed.
+    Pass NULL for string argument to construct in default state.
+    <argument name = "nmea" type = "string" />
+  </constructor>
+
+  <destructor />
+
+  <method name = "parse">
+    Parse an NMEA string, reusing the current parser, replacing its contents
+    with the new parsed data.
+    
+    Returns 0 on success, or -1 on parse failure. Object state after a failed
+    parse is undefined.
+    <argument name = "nmea" type = "string" />
+    <return type = "integer" />
+  </method>
+
+
+  <!-- Tagblock accessors -->
+
+  <method name = "tagblockval">
+    Get the string in the tagblock with given key.
+    Returns NULL if key not found or if there was no tagblockl.
+    <argument name = "key" type = "string" />
+    <return type = "string" />
+  </method>
+
+  
+  <!-- NMEA main body accessors -->
+
+  <method name = "head">
+    Sentence identifier, e.g. "!AIVDM"
+    TODO consider stripping the leading '!'; depends on what clients want.
+    <return type = "string" />
+  </method>
+
+  <method name = "fragcount">
+    How many fragments make up the whole set containing this one?
+    <return type = "size" />
+  </method>
+
+  <method name = "fragnum">
+    Which fragment number in the whole set is this one? (One-based)
+    <return type = "size" />
+  </method>
+
+  <method name = "messageid">
+    Sequential message ID, for multi-sentence messages.
+    Often (intentionally) missing, in which case we return -1.
+    <return type = "integer" />
+  </method>
+
+  <method name = "channel">
+    Radio channel message was transmitted on (NB not the same as
+    unit class, this is about frequency).
+    Theoretically only 'A' and 'B' are allowed, but '1' and '2'
+    are seen, which mean the same things.
+    If no channel was present, or the NMEA column held more than one
+    character, set to -1.
+    <return type = "char" />
+  </method>
+
+  <method name = "payload">
+    Data payload for the message. This is where the AIS meat lies.
+    Pass this to an AIS message decoding library.
+    <return type = "string" />
+  </method>
+
+  <method name = "fillbits">
+    Number of padding bits included at the end of the payload.
+    The AIS decoding library needs to know this number, so it can strip
+    them off.
+    <return type = "size" />
+  </method>
+
+  <method name = "checksum">
+    Message checksum. Transmitted in hex.
+    <return type = "size" />
+  </method>
+
+  
+  <!-- Our one concession to AIS payload decoding, as its useful -->
+
+  <method name = "aismsgtype">
+    Returns the AIS message type of the message, or -1 if the message
+    doesn't exhibit a valid AIS messgae type.
+    (This is worked out from the first character of the payload.)
+    <return type = "integer" />
+  </method>
+
+
+</class>
+

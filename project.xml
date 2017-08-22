@@ -1,0 +1,20 @@
+<project name = "aisnmea"
+         description = "Simple, portable and fast parser for AIS-holding NMEA data"
+         license = "MPLv2"
+         script = "zproject.gsl"
+         url = "https://github.com/InkblotSoftware/aisnmea"
+         repository = "https://github.com/InkblotSoftware/aisnmea"
+         >
+  
+  <include filename = "license.xml" />
+
+  <version major = "1" minor = "0" patch = "0" />
+  
+  <use project = "czmq" />
+
+  <class name = "aisnmea">
+    Parser for AIS NMEA messages
+  </class>
+  
+</project>
+  
