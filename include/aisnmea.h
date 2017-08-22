@@ -57,12 +57,12 @@ AISNMEA_EXPORT const char *
     aisnmea_head (aisnmea_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
-//  How many fragments in the message sentence containing this one?
+//  How many fragments make up the whole set containing this one?
 AISNMEA_EXPORT size_t
     aisnmea_fragcount (aisnmea_t *self);
 
 //  *** Draft method, for development use, may change without warning ***
-//  Which fragment number of the whole sentence is this one? (One-based)
+//  Which fragment number in the whole set is this one? (One-based)
 AISNMEA_EXPORT size_t
     aisnmea_fragnum (aisnmea_t *self);
 
@@ -77,6 +77,8 @@ AISNMEA_EXPORT int
 //  unit class, this is about frequency).
 //  Theoretically only 'A' and 'B' are allowed, but '1' and '2'
 //  are seen, which mean the same things.
+//  If no channel was present, or the NMEA column held more than one
+//  character, set to -1.
 AISNMEA_EXPORT char
     aisnmea_channel (aisnmea_t *self);
 
