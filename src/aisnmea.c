@@ -186,7 +186,6 @@ s_parse_tagblock (const char *tagblock)
 
     zlist_t *outercols = NULL;  // for removing the '*' checksum
     zlist_t *kv_pairs = NULL;   // for splitting into "kk:vv" parts
-    zlist_t *cur_pair_parts = NULL;  // for splitting kk:vv into "kk" and "vv"
 
     // Remove checksum part
     outercols = s_delimstring_split (tagblock, '*');
@@ -203,7 +202,7 @@ s_parse_tagblock (const char *tagblock)
     const char *cur_pair = (const char *) zlist_first (kv_pairs);
     while (cur_pair != NULL) {
         
-        cur_pair_parts = s_delimstring_split (cur_pair, ':');
+        zlist_t *cur_pair_parts = s_delimstring_split (cur_pair, ':');
         if (zlist_size (cur_pair_parts) != 2)
             goto die;
 
