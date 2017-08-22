@@ -210,9 +210,9 @@ s_parse_tagblock (const char *tagblock)
             goto die;
 
         const char *key = (const char *) zlist_first (cur_pair_parts);
-        const char *val = (const char *) zlist_next (cur_pair_parts);
+        char       *val =       (char *) zlist_next (cur_pair_parts);
         
-        int err = zhash_insert (res, key, strdup (val));
+        int err = zhash_insert (res, key, val);
         assert (!err);
 
         cur_pair = (const char *) zlist_next (kv_pairs);
