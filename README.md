@@ -50,8 +50,8 @@ assert (NULL = aisnmea_tagblockval (msg, "nono"));  // NULL if key not present
 // Note that we resuse the original parser here, which can give cleaner code
 // if you have a lot of lines to process.
 
-int err = aisnmea_parse ("!AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO"
-                         "@mBplU@<PDhh000000001S;AJ::4A80?4i@E53,0*3E");
+int err = aisnmea_parse (msg, "!AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO@mBpl"
+                              "U@<PDhh000000001S;AJ::4A80?4i@E53,0*3E");
 assert (!err);
 
 // Make sure to call the message destructor at the end
