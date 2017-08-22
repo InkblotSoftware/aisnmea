@@ -15,9 +15,9 @@ If you want to parse the wire format, try [libais](https://github.com/schwehr/li
 (If you need better permformance you can use its C++ classes directly,
 rather than going via its Python interface.)
 
-This project is currently built tested on Linux, but it really shouldn't
+This project is currently built and tested on Linux, but it really shouldn't
 be difficult to make it work on Windows, since it's based on
-[zproject](https://github.com/zeromq/) and [CZMQ](https://github.com/zeromq/czmq/).
+[zproject](https://github.com/zeromq/zproject/) and [CZMQ](https://github.com/zeromq/czmq/).
 
 
 Example
