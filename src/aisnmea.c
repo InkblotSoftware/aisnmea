@@ -190,9 +190,8 @@ s_parse_tagblock (const char *tagblock)
 
     // Remove checksum part
     outercols = s_delimstring_split (tagblock, '*');
-    if (zlist_size (outercols) != 2) {
+    if (zlist_size (outercols) != 2)
         goto die;
-    }
 
     const char *tagblock_dats = (const char *) zlist_first (outercols);
 
@@ -378,7 +377,7 @@ s_delimstring_split (const char *string, char delim)
     while (end) {
         end = strchr (beg+1, delim);
 
-        char *sub_str  = zsys_sprintf ("%.*s", end - (beg+1), (beg+1));
+        char *sub_str = zsys_sprintf ("%.*s", end - (beg+1), (beg+1));
         zlist_append (res, sub_str);
         zstr_free (&sub_str);
         
