@@ -200,21 +200,24 @@ s_parse_tagblock (const char *tagblock)
     if (!kv_pairs)
         goto die;
 
+    // Process each k:v pair in the list, storing as we go
     const char *cur_pair = (const char *) zlist_first (kv_pairs);
     while (cur_pair != NULL) {
         
-        zlist_t *cur_pair_parts = s_delimstring_split (cur_pair, ':');
-        if (!cur_pair_parts)
-            goto die;
+        cur_pair_parts = s_delimstring_split (cur_pair, ':');
         if (zlist_size (cur_pair_parts) != 2)
             goto die;
 
         const char *key = (const char *) zlist_first (cur_pair_parts);
         char       *val =       (char *) zlist_next (cur_pair_parts);
+
+        if (strlen (key) == 0 || strlen (val) == 0)
+            goto die;
         
         int err = zhash_insert (res, key, val);
         assert (!err);
 
+        zlist_destroy (&cur_pair_parts);
         cur_pair = (const char *) zlist_next (kv_pairs);
     }
 
@@ -226,7 +229,6 @@ s_parse_tagblock (const char *tagblock)
  cleanup_return:
     zlist_destroy (&outercols);
     zlist_destroy (&kv_pairs);
-    zlist_destroy (&cur_pair_parts);
     
     return res;
 }    
