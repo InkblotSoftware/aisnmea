@@ -64,6 +64,9 @@ s_parse_tagblock (const char *tagblock);
 static zlist_t *
 s_delimstring_split (const char *string, char delim);
 
+static int
+s_calc_checksum (const char *str);
+
 
 //  --------------------------------------------------------------------------
 //  Create a new aisnmea, parsing nmea and storing its data internally.
@@ -192,8 +195,22 @@ s_parse_tagblock (const char *tagblock)
     if (zlist_size (outercols) != 2)
         goto die;
 
+    // Body of both cols
     const char *tagblock_dats = (const char *) zlist_first (outercols);
+    const char *given_checksum_str = (const char *) zlist_next (outercols);
 
+    // Read the checksum string part of tb, so we can compare to calc'd value later
+    errno = 0;
+    int given_checksum = strtol (given_checksum_str, NULL, 16);
+    if (errno)
+        goto die;
+    
+    // Check its checksum matches the one we parsed out above
+    int actual_checksum = s_calc_checksum (tagblock_dats);
+    if (actual_checksum != given_checksum)
+        goto die;
+
+    // All the individual k:v pairs (but not split on ':')
     kv_pairs = s_delimstring_split (tagblock_dats, ',');
     if (!kv_pairs)
         goto die;
@@ -311,6 +328,11 @@ s_setfrom_innernmea (aisnmea_t *self, const char *inner_nmea)
     if (errno)
         goto die;
 
+    // Check checksum is right
+    int actual_checksum = s_calc_checksum (nm_body);
+    if (actual_checksum != self->checksum)
+        goto die;
+
     zlist_destroy (&cols);
     zlist_destroy (&body_and_checksum);
     return 0;
@@ -383,6 +405,29 @@ s_delimstring_split (const char *string, char delim)
         beg = end;
     }
 
+    return res;
+}
+
+
+//  --------------------------------------------------------------------------
+//  NMEA checksum calculations
+
+static int
+s_calc_checksum (const char *str)
+{
+    int res = 0;
+    const char *cur_char = str;
+
+    if (!strlen (str))
+        return res;
+
+    if (str[0] == '!' || str[0] == '$')
+        ++cur_char;
+
+    while (*cur_char) {
+        res ^= *cur_char;
+        ++cur_char;
+    }
     return res;
 }
 
@@ -529,13 +574,25 @@ aisnmea_test (bool verbose)
 
     if (verbose)
         log ("### DID MSGTYPE MAPPING TESTS");
+
+
+    // -- checksum calculations
+
+    int cs1 = s_calc_checksum ("g:1-2-73874,n:157036,s:r003669945,c:1241544035");
+    assert (cs1 == strtol ("4A", NULL, 16));
+
+    int cs2 = s_calc_checksum ("!AIVDM,1,1,,B,15N4cJ`005Jrek0H@9n`DW5608EP,0");
+    assert (cs2 = strtol ("13", NULL, 16));
+
+    if (verbose)
+        log ("### DID CHECKSUM CALC TESTS");
     
     
     // -- parsing whole tagblocks
     
     // eg1
 
-    zhash_t *tbhash = s_parse_tagblock ("aa:bb,c:d,eeeeee:ffff*99");
+    zhash_t *tbhash = s_parse_tagblock ("aa:bb,c:d,eeeeee:ffff*3D");
     
     assert (tbhash);
     assert (zhash_size (tbhash) == 3);
@@ -654,6 +711,21 @@ aisnmea_test (bool verbose)
     assert (!badtry);
 
     badtry = aisnmea_new ("*");
+    assert (!badtry);
+
+    // Bad checksum in tb
+    badtry = aisnmea_new ("\\g:1-2-73874,n:157036,s:r003669945,c:1241544035*40"
+                          "\\!AIVDM,1,1,,B,15N4cJ`005Jrek0H@9n`DW5608EP,0*13");
+    assert (!badtry);
+
+    // Bad checksum in body
+    badtry = aisnmea_new ("\\g:1-2-73874,n:157036,s:r003669945,c:1241544035*4A"
+                          "\\!AIVDM,1,1,,B,15N4cJ`005Jrek0H@9n`DW5608EP,0*19");
+    assert (!badtry);
+    
+    // Back checksum in body
+    badtry = aisnmea_new ("!AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO@mBplU@<"
+                          "PDhh000000001S;AJ::4A80?4i@E53,0*8E");
     assert (!badtry);
 
     if (verbose)
