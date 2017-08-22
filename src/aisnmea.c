@@ -148,7 +148,7 @@ typedef struct _ais_typemap_s {
     int aistype;
 } ais_typemap_s;
 
-static ais_typemap_s
+static const ais_typemap_s
 s_ais_typemaps[] = { {'1', 1},  {'2', 2},  {'3', 3},  {'4', 4},
                      {'5', 5},  {'6', 6},  {'7', 7},  {'8', 8},
                      {'9', 9},  {':', 10}, {';', 11}, {'<', 12},
@@ -162,7 +162,7 @@ s_ais_typemaps[] = { {'1', 1},  {'2', 2},  {'3', 3},  {'4', 4},
 static int
 s_ais_msgtype_fromchar (int ch)
 {
-    ais_typemap_s *t = s_ais_typemaps;
+    const ais_typemap_s *t = s_ais_typemaps;
     while (t->bodychar) {
         if (t->bodychar == ch)
             return t->aistype;
