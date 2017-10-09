@@ -15,6 +15,11 @@
   <class name = "aisnmea">
     Parser for AIS NMEA messages
   </class>
+
+  <main name = "nmea_count_aismsgtypes">
+    Given an AIS NMEA text emits a CSV containing counts of the number of
+    messages it contained with each AIS message type
+  </main>
   
 </project>
   

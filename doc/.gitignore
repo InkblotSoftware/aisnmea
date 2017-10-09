@@ -13,6 +13,8 @@
 # Ignore the source doc texts generated from program sources
 aisnmea.txt
 aisnmea.doc
+nmea_count_aismsgtypes.txt
+nmea_count_aismsgtypes.doc
 
 # Make sure to track the manually maintained project description
 !*.adoc

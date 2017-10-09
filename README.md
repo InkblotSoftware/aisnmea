@@ -19,6 +19,10 @@ This project is currently built and tested on Linux, but it really shouldn't
 be difficult to make it work on Windows, since it's based on
 [zproject](https://github.com/zeromq/zproject/) and [CZMQ](https://github.com/zeromq/czmq/).
 
+We also ship the utility program `nmea_count_aismsgtypes`, described below, which
+counts the number of messages of each AIS message type existing in a provided
+AIS NMEA text.
+
 
 Example
 -------
@@ -57,6 +61,26 @@ assert (!err);
 // Make sure to call the message destructor at the end
 aisnmea_destroy (&msg);
 ```
+
+
+nmea_count_aismsgtypes
+----------------------
+
+```shell
+USAGE:
+  nmea_count_aismsgtypes < FILE.nmea
+```
+
+Counts the number of messages in the NMEA text provided on stdin with each AIS
+message type, and outputs the counts as CSV.
+
+The CSV only contains rows for which the relevant count was >0, and these
+rows contain the following columns: {msg_type, count}. A header row containing
+{"message_type","count"} is also included.
+
+Counts only the first part of multipart AIS messages, so if you're missing
+later parts the resulting counts will arguably be artifically high, or vice
+versa if you're missing the first part.
 
 
 Installation

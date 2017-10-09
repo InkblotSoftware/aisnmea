@@ -481,6 +481,16 @@ fi
      AC_MSG_RESULT([$enable_dist_cmakefiles])])
 AM_CONDITIONAL(ENABLE_DIST_CMAKEFILES, test "x$enable_dist_cmakefiles" = "xyes")
 
+# Check for nmea_count_aismsgtypes intent
+AC_ARG_ENABLE([nmea_count_aismsgtypes],
+    AS_HELP_STRING([--enable-nmea_count_aismsgtypes],
+        [Compile and install 'nmea_count_aismsgtypes' [default=yes]]),
+    [enable_nmea_count_aismsgtypes=$enableval],
+    [enable_nmea_count_aismsgtypes=yes])
+
+AM_CONDITIONAL([ENABLE_NMEA_COUNT_AISMSGTYPES], [test x$enable_nmea_count_aismsgtypes != xno])
+AM_COND_IF([ENABLE_NMEA_COUNT_AISMSGTYPES], [AC_MSG_NOTICE([ENABLE_NMEA_COUNT_AISMSGTYPES defined])])
+
 # Check for aisnmea_selftest intent
 AC_ARG_ENABLE([aisnmea_selftest],
     AS_HELP_STRING([--enable-aisnmea_selftest],

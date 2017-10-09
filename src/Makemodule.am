@@ -54,6 +54,13 @@ endif
 
 src_libaisnmea_la_LIBADD = ${project_libs}
 
+if ENABLE_NMEA_COUNT_AISMSGTYPES
+bin_PROGRAMS += src/nmea_count_aismsgtypes
+src_nmea_count_aismsgtypes_CPPFLAGS = ${AM_CPPFLAGS}
+src_nmea_count_aismsgtypes_LDADD = ${program_libs}
+src_nmea_count_aismsgtypes_SOURCES = src/nmea_count_aismsgtypes.c
+endif #ENABLE_NMEA_COUNT_AISMSGTYPES
+
 if ENABLE_AISNMEA_SELFTEST
 check_PROGRAMS += src/aisnmea_selftest
 noinst_PROGRAMS += src/aisnmea_selftest
@@ -69,6 +76,7 @@ dist_api_DATA = \
 
 # define custom target for all products of /src
 src: \
+		src/nmea_count_aismsgtypes \
 		src/aisnmea_selftest \
 		src/libaisnmea.la
 

@@ -196,6 +196,20 @@ install(
 # executables
 ########################################################################
 add_executable(
+    nmea_count_aismsgtypes
+    "${SOURCE_DIR}/src/nmea_count_aismsgtypes.c"
+)
+target_link_libraries(
+    nmea_count_aismsgtypes
+    aisnmea
+    ${LIBZMQ_LIBRARIES}
+    ${CZMQ_LIBRARIES}
+    ${OPTIONAL_LIBRARIES}
+)
+install(TARGETS nmea_count_aismsgtypes
+    RUNTIME DESTINATION bin
+)
+add_executable(
     aisnmea_selftest
     "${SOURCE_DIR}/src/aisnmea_selftest.c"
 )
@@ -285,6 +299,7 @@ set(cmake_generated ${CMAKE_BINARY_DIR}/CMakeCache.txt
                     ${CMAKE_BINARY_DIR}/src/libaisnmea.pc
                     ${CMAKE_BINARY_DIR}/src/libaisnmea.so
                     ${CMAKE_BINARY_DIR}/src/aisnmea_selftest
+                    ${CMAKE_BINARY_DIR}/src/nmea_count_aismsgtypes
                     ${CMAKE_BINARY_DIR}/src/aisnmea_selftest
 )
 

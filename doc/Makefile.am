@@ -6,7 +6,7 @@
 all-local: doc
 
 # Public programs ("main" tags in project.xml), auto-regenerated:
-MAN1 =
+MAN1 = nmea_count_aismsgtypes.1
 # Public classes ("class" tags in project.xml), auto-regenerated:
 MAN3 = aisnmea.3
 # Project overview, written by a human after initial skeleton:
@@ -67,6 +67,10 @@ GENERATED_DOCS =
 GENERATED_DOCS += aisnmea.txt aisnmea.doc
 aisnmea.txt: $(top_srcdir)/src/aisnmea.c
 	"$(srcdir)/mkman" "aisnmea" "$(builddir)/aisnmea.txt" "$(srcdir)/.."
+
+GENERATED_DOCS += nmea_count_aismsgtypes.txt nmea_count_aismsgtypes.doc
+nmea_count_aismsgtypes.txt: $(top_srcdir)/src/nmea_count_aismsgtypes.c
+	"$(srcdir)/mkman" "nmea_count_aismsgtypes" "$(builddir)/nmea_count_aismsgtypes.txt" "$(srcdir)/.."
 
 
 clean:
