@@ -391,7 +391,6 @@ s_delimstring_split (const char *string, char delim)
         return res;
 
     // We'll copy vals into here as we go to save mallocs; it auto-stretches.
-    // No terminating NULL is stored here.
     zchunk_t *strbuf = zchunk_new (NULL, 0);
     assert (strbuf);
 
