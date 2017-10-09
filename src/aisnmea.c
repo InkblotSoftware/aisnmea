@@ -389,21 +389,39 @@ s_delimstring_split (const char *string, char delim)
     // to the right and left of 'string'
     if (!strlen (string))
         return res;
-    
+
+    // We'll copy vals into here as we go to save mallocs; it auto-stretches.
+    // No terminating NULL is stored here.
+    zchunk_t *strbuf = zchunk_new (NULL, 0);
+    assert (strbuf);
+
     // Points to the delim char ending the last field, or just before the start of the string
     const char *beg = string - 1;
     // Points to the delim char ending the current field
-    const char *end = string;
+    const char *end = strchr (beg+1, delim);
     
-    while (end) {
-        end = strchr (beg+1, delim);
+    // At termination, both pointers are NULL (found end of string)
+    while (beg || end) {
+        zchunk_set (strbuf, NULL, 0);
 
-        char *sub_str = zsys_sprintf ("%.*s", end - (beg+1), (beg+1));
-        zlist_append (res, sub_str);
-        zstr_free (&sub_str);
+        // 'end' is set to NULL by strchr when we run out of cols. 
+        // If so, set it to the terminating NULL so we can grab the final val
+        const char *val_end = (end == NULL)
+                                  ? (string + strlen (string))
+                                  : end;
+
+        zchunk_extend (strbuf, beg+1, val_end - (beg+1));
+        // zlist_append() expects to find a NULL terminated string
+        char nul = 0;
+        zchunk_extend (strbuf, &nul, 1);
+        
+        zlist_append (res, zchunk_data (strbuf));
         
         beg = end;
+        if (beg)
+            end = strchr (beg+1, delim);
     }
+    zchunk_destroy (&strbuf);
 
     return res;
 }
