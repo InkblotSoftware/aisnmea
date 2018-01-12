@@ -12,6 +12,8 @@
   
   <use project = "czmq" />
 
+  <target name = "vs2015" />
+
   <class name = "aisnmea">
     Parser for AIS NMEA messages
   </class>
