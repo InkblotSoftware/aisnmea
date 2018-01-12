@@ -1,6 +1,6 @@
 <class name = "aisnmea">
 
-  <!-- Ctr/dtr and parsing method -->
+  <!-- Ctr/dtr/dup and parsing method -->
 
   <constructor>
     Parse an NMEA string and return the results, or NULL if the parse failed.
@@ -10,6 +10,12 @@
 
   <destructor />
 
+  <method name = "dup">
+    Make a copy of the object, including all owned resources.
+    New object has same externally-visible state as source object.
+    <return type = "aisnmea" fresh = "1" />
+  </method>
+    
   <method name = "parse">
     Parse an NMEA string, reusing the current parser, replacing its contents
     with the new parsed data.

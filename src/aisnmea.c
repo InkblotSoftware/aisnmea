@@ -117,6 +117,45 @@ aisnmea_destroy (aisnmea_t **self_p)
 
 
 //  --------------------------------------------------------------------------
+//  Object duplicator
+
+aisnmea_t *
+aisnmea_dup (aisnmea_t *self) {
+    assert (self);
+
+    aisnmea_t *res = aisnmea_new (NULL);
+    assert (res);
+    
+    res->tagblock_data = zhash_new();
+    assert (res->tagblock_data);
+    zhash_autofree (res->tagblock_data);
+
+    // Iterate hashtable in self, copying values into res hashtable
+    char *tb_val = (char *) zhash_first (self->tagblock_data);
+    while (tb_val) {
+        const char *tb_key = (const char *) zhash_cursor (self->tagblock_data);
+
+        // NB autofree means that vals are copied; keys are always copied
+        int rc = zhash_insert (res->tagblock_data, tb_key, tb_val);
+        assert (!rc);
+        
+        tb_val = (char *) zhash_next (self->tagblock_data);
+    }
+
+    res->head      = strdup (self->head);
+    res->fragcount = self->fragcount;
+    res->fragnum   = self->fragnum;
+    res->messageid = self->messageid;
+    res->channel   = self->channel;
+    res->payload   = strdup (self->payload);
+    res->fillbits  = self->fillbits;
+    res->checksum  = self->checksum;
+
+    return res;
+}
+
+
+//  --------------------------------------------------------------------------
 //  Parse a full AIS NMEA line, and store its data in self.
 //  Returns 0 on succes, -1 on failure
 
@@ -744,6 +783,54 @@ aisnmea_test (bool verbose)
     badtry = aisnmea_new ("!AIVDM,2,1,3,B,55P5TL01VIaAL@7WKO@mBplU@<"
                           "PDhh000000001S;AJ::4A80?4i@E53,0*8E");
     assert (!badtry);
+
+
+    // -- dup ctr
+    {
+        const char *dup_nmea =
+            "\\g:1-2-73874,n:157036,s:r003669945,c:1241544035*4A\\!AIVDM,1,1,,B,15N4cJ`005Jrek0H@9n`DW5608EP,0*13";
+        
+        aisnmea_t *m1 = aisnmea_new (dup_nmea);
+        assert (m1);
+
+        aisnmea_t *m2 = aisnmea_dup (m1);
+        assert (m2);
+
+        // Destroy to check no dangling ownership
+        aisnmea_destroy (&m1);
+        
+        // tagblock
+
+        assert (aisnmea_tagblockval (m2, "g"));
+        assert (streq (aisnmea_tagblockval (m2, "g"),
+                       "1-2-73874"));
+
+        assert (aisnmea_tagblockval (m2, "n"));
+        assert (streq (aisnmea_tagblockval (m2, "n"),
+                       "157036"));
+
+        assert (streq (aisnmea_tagblockval (m2, "s"),
+                       "r003669945"));
+                   
+        assert (streq (aisnmea_tagblockval (m2, "c"),
+                       "1241544035"));
+    
+        // core
+    
+        assert (streq ("!AIVDM", aisnmea_head (m2)));
+        assert (   1 == aisnmea_fragcount (m2));
+        assert (   1 == aisnmea_fragnum (m2));
+        assert (  -1 == aisnmea_messageid (m2));
+        assert ( 'B' == aisnmea_channel (m2));
+        assert (streq ("15N4cJ`005Jrek0H@9n`DW5608EP", aisnmea_payload (m2)));
+        assert (   0 == aisnmea_fillbits (m2));
+        assert (0x13 == aisnmea_checksum (m2));
+        assert (   1 == aisnmea_aismsgtype (m2));
+
+        aisnmea_destroy (&m2);
+    }
+
+    
 
     if (verbose)
         log ("### DID FULL PARSE OF BROKEN NMEA TESTS");

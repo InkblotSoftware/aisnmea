@@ -36,6 +36,13 @@ AISNMEA_EXPORT void
     aisnmea_destroy (aisnmea_t **self_p);
 
 //  *** Draft method, for development use, may change without warning ***
+//  Make a copy of the object, including all owned resources.
+//  New object has same externally-visible state as source object.
+//  Caller owns return value and must destroy it when done.
+AISNMEA_EXPORT aisnmea_t *
+    aisnmea_dup (aisnmea_t *self);
+
+//  *** Draft method, for development use, may change without warning ***
 //  Parse an NMEA string, reusing the current parser, replacing its contents
 //  with the new parsed data.
 //
