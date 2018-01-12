@@ -125,21 +125,23 @@ aisnmea_dup (aisnmea_t *self) {
 
     aisnmea_t *res = aisnmea_new (NULL);
     assert (res);
-    
-    res->tagblock_data = zhash_new();
-    assert (res->tagblock_data);
-    zhash_autofree (res->tagblock_data);
 
-    // Iterate hashtable in self, copying values into res hashtable
-    char *tb_val = (char *) zhash_first (self->tagblock_data);
-    while (tb_val) {
-        const char *tb_key = (const char *) zhash_cursor (self->tagblock_data);
+    if (self->tagblock_data) {
+        res->tagblock_data = zhash_new();
+        assert (res->tagblock_data);
+        zhash_autofree (res->tagblock_data);
 
-        // NB autofree means that vals are copied; keys are always copied
-        int rc = zhash_insert (res->tagblock_data, tb_key, tb_val);
-        assert (!rc);
+        // Iterate hashtable in self, copying values into res hashtable
+        char *tb_val = (char *) zhash_first (self->tagblock_data);
+        while (tb_val) {
+            const char *tb_key = (const char *) zhash_cursor (self->tagblock_data);
+
+            // NB autofree means that vals are copied; keys are always copied
+            int rc = zhash_insert (res->tagblock_data, tb_key, tb_val);
+            assert (!rc);
         
-        tb_val = (char *) zhash_next (self->tagblock_data);
+            tb_val = (char *) zhash_next (self->tagblock_data);
+        }
     }
 
     res->head      = strdup (self->head);
@@ -787,10 +789,12 @@ aisnmea_test (bool verbose)
 
     // -- dup ctr
     {
-        const char *dup_nmea =
+        // -- with tagblock
+        
+        const char *dup_nmea_tb =
             "\\g:1-2-73874,n:157036,s:r003669945,c:1241544035*4A\\!AIVDM,1,1,,B,15N4cJ`005Jrek0H@9n`DW5608EP,0*13";
         
-        aisnmea_t *m1 = aisnmea_new (dup_nmea);
+        aisnmea_t *m1 = aisnmea_new (dup_nmea_tb);
         assert (m1);
 
         aisnmea_t *m2 = aisnmea_dup (m1);
@@ -828,6 +832,22 @@ aisnmea_test (bool verbose)
         assert (   1 == aisnmea_aismsgtype (m2));
 
         aisnmea_destroy (&m2);
+
+        
+        // -- and without tagblock
+
+        const char *dup_nmea_notb =
+            "!AIVDM,1,1,,B,177KQJ5000G?tO`K>RA1wUbN0TKH,0*5C";
+
+        aisnmea_t *m3 = aisnmea_new (dup_nmea_notb);
+        aisnmea_t *m4 = aisnmea_dup (m3);
+        aisnmea_destroy (&m3);
+        
+        assert (NULL == aisnmea_tagblockval(m4, "ABC"));
+        assert ('B' == aisnmea_channel(m4));
+        assert (streq ("177KQJ5000G?tO`K>RA1wUbN0TKH", aisnmea_payload(m4)));
+        
+        aisnmea_destroy (&m4);
     }
 
     
